@@ -5,6 +5,9 @@
 # Ignore dockerignore in service folders
 .dockerignore
 
+# Ignore gitignore in service folders
+.gitignore
+
 # Ignore all PEM files anywhere
 *.pem
 
