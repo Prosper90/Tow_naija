@@ -1,0 +1,37 @@
+# Ignore env files in service folders
+.env
+
+
+# Ignore dockerignore in service folders
+.dockerignore
+
+# Ignore all PEM files anywhere
+*.pem
+
+
+# Ignore all deployment scripts
+*.sh
+
+# Ignore txt saves
+*.txt
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE settings
+.vscode/
+.idea/
+
+# Ignore Firebase keys
+Messaging-ms/src/config/serviceAccountKey.json
+Messaging-ms/src/config/towniaja-firebase-adminsdk.json
+
+# Ignore build output
+target/
+dist/
+node_modules/

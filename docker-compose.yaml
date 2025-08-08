@@ -1,0 +1,167 @@
+#version: "3.9"
+
+services:
+#backend-driver
+  backend-driver:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/ride-matching/driver-ms:latest
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOSTNAME=backend-driver
+      - KAFKA_BROKER=kafka:9092
+    depends_on:
+      - kafka
+      - zookeeper
+    env_file:
+      - ./env-files/driver.env
+
+#backend-rider
+  backend-rider:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/ride-matching/rider-ms:latest
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - HOSTNAME=backend-rider
+      - KAFKA_BROKER=kafka:9092
+    depends_on:
+      - kafka
+      - zookeeper
+    env_file:
+      - ./env-files/rider.env
+
+  # Repeat similar configuration for other services...
+# backend-ride
+  backend-ride:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/ride-matching/ride-ms:latest
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - HOSTNAME=backend-ride
+      - KAFKA_BROKER=kafka:9092
+    depends_on:
+      - kafka
+      - zookeeper
+    env_file:
+      - ./env-files/ride.env
+
+#backend-messaging
+  backend-messaging:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/ride-matching/messaging-ms:latest
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - HOSTNAME=backend-messaging
+      - KAFKA_BROKER=kafka:9092
+    depends_on:
+      - kafka
+      - zookeeper
+    env_file:
+      - ./env-files/messaging.env
+
+#backend-matching 
+  backend-matching:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/ride-matching/matching-ms:latest
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - HOSTNAME=backend-matching
+      - KAFKA_BROKER=kafka:9092
+    depends_on:
+      - kafka
+      - zookeeper
+    env_file:
+      - ./env-files/matching.env
+
+#backend-location
+  backend-location:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/ride-matching/location-ms:latest
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+      - HOSTNAME=backend-location
+      - KAFKA_BROKER=kafka:9092
+    depends_on:
+      - kafka
+      - zookeeper
+    env_file:
+      - ./env-files/location.env
+
+#backend-review
+  backend-review:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/ride-matching/review-ms:latest
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=production
+      - PORT=3007
+      - HOSTNAME=backend-review
+      - KAFKA_BROKER=kafka:9092
+    depends_on:
+      - kafka
+      - zookeeper
+    env_file:
+      - ./env-files/review.env
+
+  #backend-admin
+  backend-admin:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/ride-matching/admin-ms:latest
+    ports:
+      -"3008:3008"
+    environment:
+      - NODE_ENV=production
+      - PORT=3008
+      - HOSTNAME=backend-admin
+    env_file:
+      - ./env-files/admin.env
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://${EC2_PUBLIC_IP}:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - /home/ubuntu/ride-matching-app/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend-driver
+      - backend-rider
+      - backend-ride
+      - backend-matching
+      - backend-location
+      - backend-messaging
+      - backend-review
+      - backend-admin

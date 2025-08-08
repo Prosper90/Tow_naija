@@ -1,0 +1,16 @@
+import { Config } from "../utils/interface";
+
+const config: Config = {
+  MONGO_URI: process.env.MONGO_URI || "localhost:2701",
+  JWT_SECRET: process.env.JWT_SECRET || "Random_secret",
+  PORT: process.env.PORT || 8000,
+  HOSTNAME: process.env.HOSTNAME || "localhost",
+  KAFKA_BROKER: process.env.KAFKA_BROKER || "localhost:9092",
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  PAYSTACK_BASE_URL: process.env.PAYSTACK_BASE_URL || '',
+  PAYSTACK_SECRET: process.env.PAYSTACK_SECRET || ''
+};
+
+export default config;
